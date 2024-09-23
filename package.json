@@ -1,16 +1,19 @@
 {
-  "name": "temp1",
+  "name": "sequelize-pg-test",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.42",
     "@sequelize/postgres": "^7.0.0-alpha.42",
+    "dotenv": "^16.4.5",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7"
   }

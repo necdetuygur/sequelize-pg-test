@@ -1,70 +1,72 @@
-const { Sequelize, DataTypes } = require("sequelize");
+import { Sequelize, DataTypes } from "@sequelize/core";
+import { PostgresDialect } from "@sequelize/postgres";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const sequelize = new Sequelize({
-  dialect: "sqlite",
-  storage: "database.db",
+  dialect: PostgresDialect,
+  database: process.env.POSTGRESQL_DATABASE,
+  user: process.env.POSTGRESQL_USER,
+  password: process.env.POSTGRESQL_PASSWORD,
+  host: process.env.POSTGRESQL_HOST,
+  port: process.env.POSTGRESQL_PORT,
+  ssl: false,
+  clientMinMessages: "notice",
 });
 
-const User = sequelize.define(
-  "User",
+const Blog = sequelize.define(
+  "Blog",
   {
-    name: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    age: {
-      type: DataTypes.INTEGER,
+    content: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   },
   {
     paranoid: true,
     timestamps: true,
-  },
+  }
 );
 
 (async () => {
   try {
     await sequelize.sync({ force: true });
-    console.log("Tablo oluşturuldu.\n");
 
-    const user1 = await User.create({ name: "Alice", age: 25 });
-    const user2 = await User.create({ name: "Bob", age: 30 });
-    console.log("Veri eklendi: Alice ve Bob.\n");
+    const post1 = await Blog.create({ title: "Foo", content: "Test 1" });
+    const post2 = await Blog.create({ title: "Bar", content: "Test 2" });
 
-    let users = await User.findAll();
-    console.log("Tüm kullanıcılar (ilk listeleme):");
-    users.forEach((user) =>
-      console.log(`Name: ${user.name}, Age: ${user.age}`),
+    let posts = await Blog.findAll();
+    posts.forEach((post) =>
+      console.log(`Title: ${post.title}, Content: ${post.content}`)
     );
     console.log("\n");
 
-    await User.update({ age: 26 }, { where: { name: "Alice" } });
-    console.log("Alice'in yaşı güncellendi.\n");
+    await Blog.update({ content: "Test" }, { where: { title: "Foo" } });
 
-    users = await User.findAll();
-    console.log("Tüm kullanıcılar (güncellenmiş listeleme):");
-    users.forEach((user) =>
-      console.log(`Name: ${user.name}, Age: ${user.age}`),
+    posts = await Blog.findAll();
+    posts.forEach((post) =>
+      console.log(`Title: ${post.title}, Content: ${post.content}`)
     );
     console.log("\n");
 
-    await user1.destroy();
-    console.log("Alice soft delete ile silindi.\n");
+    await post1.destroy();
 
-    users = await User.findAll();
-    console.log("Tüm kullanıcılar (Alice silindikten sonra):");
-    users.forEach((user) =>
-      console.log(`Name: ${user.name}, Age: ${user.age}`),
+    posts = await Blog.findAll();
+    posts.forEach((post) =>
+      console.log(`Title: ${post.title}, Content: ${post.content}`)
     );
     console.log("\n");
 
-    const deletedUsers = await User.findAll({ paranoid: false });
-    console.log("Silinmiş kullanıcılar dahil tüm kullanıcılar:");
-    deletedUsers.forEach((user) =>
+    const deletedBlogs = await Blog.findAll({ paranoid: false });
+    deletedBlogs.forEach((post) =>
       console.log(
-        `Name: ${user.name}, Age: ${user.age}, DeletedAt: ${user.deletedAt}`,
-      ),
+        `Title: ${post.title}, Content: ${post.content}, DeletedAt: ${post.deletedAt}`
+      )
     );
     console.log("\n");
   } catch (error) {
